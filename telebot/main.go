@@ -26,7 +26,8 @@ func main() {
 	chatid, err := strconv.ParseInt(os.Getenv("CHATID"), 10, 64)
 
 	if token == "" || dsn == "" || chatid == 0 || err != nil {
-		panic("env error")
+		s := fmt.Sprintf("env error:token: %s, dsn: %s, chatid: %d, err: %v", token, dsn, chatid, err)
+		panic(s)
 	}
 
 	db.Init(dsn)
