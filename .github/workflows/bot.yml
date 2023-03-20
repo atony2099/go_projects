@@ -23,11 +23,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: checks
-        run: |
-          scp  main.go ${{ secrets.USER }}@${{ secrets.SSH_HOST }}:/var/www/api
-
-
+    
       - name: check2
         run: |
           ssh ${{ secrets.USER }}@${{ secrets.SSH_HOST }} "echo hello"
