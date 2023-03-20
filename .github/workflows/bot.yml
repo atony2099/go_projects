@@ -83,8 +83,9 @@ jobs:
               export TOKEN=$TOKEN 
               export CHATID=$CHATID 
               export DB=$DB 
-              nohup ./telbot >> ./telbot.log 2 >> ./telbot.error.log  < /dev/null &
               cd /var/www/api
+              nohup ./telbot >> ./telbot.log 2 >> ./telbot.error.log  < /dev/null &
+             
              
         
      
