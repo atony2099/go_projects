@@ -42,7 +42,7 @@ jobs:
       - name: Stop app and deploy
         run: |
           ssh  ${{ secrets.USER }}@${{ secrets.SSH_HOST }}  "pkill -x telbot"  
-          scp  ./telbot ${{ secrets.USER }}@${{ secrets.SSH_HOST }:/var/www/api/
+          scp  ./telbot ${{ secrets.USER }}@${{ secrets.SSH_HOST }}:/var/www/api/
 
 
       - name: Set env vars and start app
