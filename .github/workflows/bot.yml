@@ -39,12 +39,19 @@ jobs:
       #   run:   rsync -avz ./dist/* ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/api
 
 
+
       - name: check and kill
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: whoami
+
+      - name: check and kill
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.USER }}
           script: |
             if pgrep telbot; then
               echo "App is running"
