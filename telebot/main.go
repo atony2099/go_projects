@@ -24,12 +24,12 @@ func main() {
 	token := viper.GetString("TOKEN")
 	dsn := viper.GetString("DB")
 	chatid := viper.GetInt64("CHATID")
-	fmt.Println(os.Getenv("TOKEN"))
 
 	if token == "" || dsn == "" || chatid == 0 {
 		log.Fatalf("env error:token: %s, dsn: %s, chatid: %d ", token, dsn, chatid)
 
 	}
+	fmt.Println("get env", token, dsn, chatid)
 
 	db.Init(dsn)
 	bot.NewBot(token, chatid)
