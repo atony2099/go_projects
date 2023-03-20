@@ -62,12 +62,15 @@ jobs:
 
 
       - name: Set env vars and start app
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
         env:
           TOKEN: ${{ secrets.TOKEN }}
           CHATID: ${{ secrets.CHATID }}
           DB: ${{ secrets.DB }}
+        envs: TOKEN, CHATID, DB
         run: |
-          ssh  ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "\
             export TOKEN=$TOKEN &&\
             export CHATID=$CHATID &&\
             export DB=$DB &&\
