@@ -70,11 +70,11 @@ jobs:
           CHATID: ${{ secrets.CHATID }}
           DB: ${{ secrets.DB }}
         envs: TOKEN, CHATID, DB
-        run: |
-            export TOKEN=$TOKEN &&\
-            export CHATID=$CHATID &&\
-            export DB=$DB &&\
-            cd /var/www/api && \
-            nohup ./telbot >> ./telbot.log 2>&1 &\
+        script: |
+            export TOKEN=$TOKEN 
+            export CHATID=$CHATID 
+            export DB=$DB 
+            cd /var/www/api 
+            nohup ./telbot >> ./telbot.log 2>&1
           "
      
