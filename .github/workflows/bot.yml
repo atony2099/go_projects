@@ -22,17 +22,16 @@ jobs:
       - name: Install dependencies 
         run: go mod download 
 
-
       - name: Build app
         run: go build -o telbot ./telebot 
-
-
-    # add key 
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: unnecessary
+
+
+      
       - name: Adding Known Hosts
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }}  >> ~/.ssh/known_hosts
 
@@ -41,18 +40,18 @@ jobs:
 
 
       - name: Stop app and deploy
-      run: |
-        ssh  ${{ secrets.USER }}@${{ secrets.SSH_HOST }}  "pkill -x telbot"  
-        scp  ./telbot ${{ secrets.USER }}@${{ secrets.SSH_HOST }:/var/www/api/
+        run: |
+          ssh  ${{ secrets.USER }}@${{ secrets.SSH_HOST }}  "pkill -x telbot"  
+          scp  ./telbot ${{ secrets.USER }}@${{ secrets.SSH_HOST }:/var/www/api/
 
 
       - name: Set env vars and start app
-      run: |
-        ssh  ${{ secrets.USER }}@${{ secrets.SSH_HOST }} "\
-          cd /var/www/api && \
-          nohup ./telbot >> ./telbot.log 2>&1 &\
-        "
-      env:
-        TOKEN: ${{ secrets.TOKEN }}
-        CHATID: ${{ secrets.CHATID }}
-        DB: ${{ secrets.DB }}
+        run: |
+          ssh  ${{ secrets.USER }}@${{ secrets.SSH_HOST }} "\
+            cd /var/www/api && \
+            nohup ./telbot >> ./telbot.log 2>&1 &\
+          "
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+          CHATID: ${{ secrets.CHATID }}
+          DB: ${{ secrets.DB }}
