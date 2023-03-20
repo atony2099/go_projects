@@ -79,7 +79,7 @@ jobs:
           # cd /var/www/api 
           # nohup ./telbot >> ./telbot.log 2>&1
           script: |
-              echo "hi world"
+              echo "hi world  123"
               export TOKEN=$TOKEN 
               export CHATID=$CHATID 
               export DB=$DB 
