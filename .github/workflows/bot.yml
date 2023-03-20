@@ -45,14 +45,14 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-        run: |
-          if pgrep telbot; then
-            echo "App is running"
-            pkill -x telbot
-          else
-            echo "App is not running"
-            exit 0
-          fi
+          script: |
+            if pgrep telbot; then
+              echo "App is running"
+              pkill -x telbot
+            else
+              echo "App is not running"
+              exit 0
+            fi
 
 
       - name: scp
