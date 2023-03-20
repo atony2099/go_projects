@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 	"time"
 
@@ -23,9 +22,10 @@ func main() {
 	viper.AutomaticEnv()
 	token := viper.GetString("TOKEN")
 	dsn := viper.GetString("DB")
-	chatid, err := strconv.ParseInt(os.Getenv("CHATID"), 10, 64)
+	chatid := viper.GetInt64("CHATID")
+	fmt.Println(os.Getenv("TOKEN"))
 
-	if token == "" || dsn == "" || chatid == 0 || err != nil {
+	if token == "" || dsn == "" || chatid == 0 {
 		s := fmt.Sprintf("env error:token: %s, dsn: %s, chatid: %d, err: %v", token, dsn, chatid, err)
 		panic(s)
 	}
