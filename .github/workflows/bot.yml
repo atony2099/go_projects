@@ -62,12 +62,13 @@ jobs:
 
 
       - name: Set env vars and start app
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+          CHATID: ${{ secrets.CHATID }}
+          DB: ${{ secrets.DB }}
         run: |
           ssh  ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "\
             cd /var/www/api && \
             nohup ./telbot >> ./telbot.log 2>&1 &\
           "
-        env:
-          TOKEN: ${{ secrets.TOKEN }}
-          CHATID: ${{ secrets.CHATID }}
-          DB: ${{ secrets.DB }}
+       
