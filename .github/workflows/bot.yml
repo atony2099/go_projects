@@ -16,12 +16,7 @@ jobs:
 
       - name: check and kill
         run: |
-          if ssh ${{ secrets.USER }}@${{ secrets.SSH_HOST }} "pgrep -x 'telbot'" >/dev/null 2>&1 ; then
-            echo "App is running"
-          else
-            echo "App is not running" 
-            exit 0
-          fi
+          scp  main.go ${{ secrets.USER }}@${{ secrets.SSH_HOST }}:/var/www/api/
 
       - name: set up go
         uses: actions/setup-go@v4
