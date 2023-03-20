@@ -27,7 +27,7 @@ func Init(dsn string) {
 	var err error
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("db err: %v", err)
+		log.Fatalf("dns is %s db err: %v", dsn, err)
 	}
 
 }
