@@ -84,7 +84,7 @@ jobs:
               export CHATID=$CHATID 
               export DB=$DB 
               cd /var/www/api
-              nohup ./telbot >> ./telbot.log 2 >> ./telbot.error.log  < /dev/null &
+              nohup ./telbot >>./tel.log 2>>./telbot.error.log  < /dev/null &
              
              
         
