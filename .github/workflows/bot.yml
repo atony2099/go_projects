@@ -24,12 +24,10 @@ jobs:
         uses: actions/checkout@v3
 
     
-      - name: check2
+      - name: hello
         run: |
-          ssh ${{ secrets.USER }}@${{ secrets.SSH_HOST }} "echo hello"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo hello"
   
-
-
       - name: set up go
         uses: actions/setup-go@v4
         with:
@@ -49,9 +47,9 @@ jobs:
 
       - name: check and kill
         run: |
-          if ssh ${{ secrets.USER }}@${{ secrets.SSH_HOST }} "pgrep -x 'telbot'" >/dev/null 2>&1 ; then
+          if ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "pgrep -x 'telbot'" >/dev/null 2>&1 ; then
             echo "App is running"
-            ssh ${{ secrets.USER }}@${{ secrets.SSH_HOST }} "pkill -x 'telbot'"
+            ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "pkill -x 'telbot'"
           else
             echo "App is not running" 
             exit 0
@@ -60,12 +58,12 @@ jobs:
 
       - name: scp
         run: |
-          scp  ./telbot ${{ secrets.USER }}@${{ secrets.SSH_HOST }}:/var/www/api/
+          scp  ./telbot ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/api/
 
 
       - name: Set env vars and start app
         run: |
-          ssh  ${{ secrets.USER }}@${{ secrets.SSH_HOST }} "\
+          ssh  ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "\
             cd /var/www/api && \
             nohup ./telbot >> ./telbot.log 2>&1 &\
           "
