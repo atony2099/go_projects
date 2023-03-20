@@ -62,19 +62,21 @@ jobs:
 
 
       - name: Set env vars and start app
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        env:
-          TOKEN: ${{ secrets.TOKEN }}
-          CHATID: ${{ secrets.CHATID }}
-          DB: ${{ secrets.DB }}
-        envs: TOKEN, CHATID, DB
-        script: |
-            export TOKEN=$TOKEN 
-            export CHATID=$CHATID 
-            export DB=$DB 
-            cd /var/www/api 
-            nohup ./telbot >> ./telbot.log 2>&1
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          env:
+            TOKEN: ${{ secrets.TOKEN }}
+            CHATID: ${{ secrets.CHATID }}
+            DB: ${{ secrets.DB }}
+          envs: TOKEN, CHATID, DB
+          script: |
+              export TOKEN=$TOKEN 
+              export CHATID=$CHATID 
+              export DB=$DB 
+              cd /var/www/api 
+              nohup ./telbot >> ./telbot.log 2>&1
         
      
