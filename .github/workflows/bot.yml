@@ -73,11 +73,13 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           
           envs: TOKEN, CHATID, DB
+          # export TOKEN=$TOKEN 
+          # export CHATID=$CHATID 
+          # export DB=$DB 
+          # cd /var/www/api 
+          # nohup ./telbot >> ./telbot.log 2>&1
           script: |
-              export TOKEN=$TOKEN 
-              export CHATID=$CHATID 
-              export DB=$DB 
-              cd /var/www/api 
-              nohup ./telbot >> ./telbot.log 2>&1
+              echo "hi world"
+             
         
      
