@@ -63,14 +63,15 @@ jobs:
 
       - name: Set env vars and start app
         uses: appleboy/ssh-action@v0.1.8
+        env:
+            TOKEN: ${{ secrets.TOKEN }}
+            CHATID: ${{ secrets.CHATID }}
+            DB: ${{ secrets.DB }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          env:
-            TOKEN: ${{ secrets.TOKEN }}
-            CHATID: ${{ secrets.CHATID }}
-            DB: ${{ secrets.DB }}
+          
           envs: TOKEN, CHATID, DB
           script: |
               export TOKEN=$TOKEN 
