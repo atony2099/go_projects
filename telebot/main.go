@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -26,8 +27,8 @@ func main() {
 	fmt.Println(os.Getenv("TOKEN"))
 
 	if token == "" || dsn == "" || chatid == 0 {
-		s := fmt.Sprintf("env error:token: %s, dsn: %s, chatid: %d %v", token, dsn, chatid, time.Now())
-		panic(s)
+		log.Fatalf("env error:token: %s, dsn: %s, chatid: %d ", token, dsn, chatid)
+
 	}
 
 	db.Init(dsn)
