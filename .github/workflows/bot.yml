@@ -24,13 +24,13 @@ jobs:
 
       - name: Build app
         run: go build -o telbot ./telebot 
+
+
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: unnecessary
-
-
       
       - name: Adding Known Hosts
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }}  >> ~/.ssh/known_hosts
@@ -39,7 +39,23 @@ jobs:
       #   run:   rsync -avz ./dist/* ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/api
 
 
-      - name: Stop app and deploy
+      - name: check and kill
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          if pgrep telbot; then
+            echo "App is running"
+            pkill -x telbot
+          else
+            echo "App is not running"
+            exit 0
+          fi
+
+
+      - name: scp
         run: |
           ssh  ${{ secrets.USER }}@${{ secrets.SSH_HOST }}  "pkill -x telbot || true"  
           scp  ./telbot ${{ secrets.USER }}@${{ secrets.SSH_HOST }}:/var/www/api/
