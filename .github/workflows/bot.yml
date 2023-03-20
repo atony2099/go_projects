@@ -41,7 +41,7 @@ jobs:
 
       - name: Stop app and deploy
         run: |
-          ssh  ${{ secrets.USER }}@${{ secrets.SSH_HOST }}  "pkill -x telbot"  
+          ssh  ${{ secrets.USER }}@${{ secrets.SSH_HOST }}  "pkill -x telbot || true"  
           scp  ./telbot ${{ secrets.USER }}@${{ secrets.SSH_HOST }}:/var/www/api/
 
 
