@@ -68,10 +68,10 @@ jobs:
           DB: ${{ secrets.DB }}
         run: |
           ssh  ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "\
-            export1 TOKEN=$TOKEN &&\
+            export TOKEN=$TOKEN &&\
+            export CHATID=$CHATID &&\
+            export DB=$DB &&\
             cd /var/www/api && \
             nohup ./telbot >> ./telbot.log 2>&1 &\
           "
-      - name: hello
-        run: |
-          echo "hello world"
+     
