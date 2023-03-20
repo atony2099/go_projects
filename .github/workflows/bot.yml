@@ -15,7 +15,6 @@ jobs:
         uses: actions/checkout@v3
 
       - name: check and kill
-        uses: appleboy/ssh-action@master
         run: |
           if ssh ${{ secrets.USER }}@${{ secrets.SSH_HOST }} "pgrep -x 'telbot'" >/dev/null 2>&1 ; then
             echo "App is running"
