@@ -15,8 +15,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-var duration = 60
-var tipDuration = 30
+var TodayPassRemainInterva = 60
+var NoStudyrRemainInterva = 30
 
 func main() {
 
@@ -27,9 +27,7 @@ func main() {
 
 	if token == "" || dsn == "" || chatid == 0 {
 		log.Fatalf("env error:token: %s, dsn: %s, chatid: %d ", token, dsn, chatid)
-
 	}
-	fmt.Println("get env", token, dsn, chatid)
 
 	db.Init(dsn)
 	bot.NewBot(token, chatid)
@@ -51,7 +49,7 @@ func doCron() {
 	}
 	s := gocron.NewScheduler(bj)
 
-	s.Cron(fmt.Sprintf("*/%d * * * *", duration)).Do(func() {
+	s.Cron(fmt.Sprintf("*/%d * * * *", TodayPassRemainInterva)).Do(func() {
 
 		beijingLocation, _ := time.LoadLocation("Asia/Shanghai")
 		h := time.Now().In(beijingLocation).Hour()
@@ -59,14 +57,16 @@ func doCron() {
 			return
 		}
 
+		// elapse time
 		pass := elapse.Combine()
 		bot.SendBotMsg(pass)
+
 		po := db.Pomodoro()
 		bot.SendBotMsg(po)
 
 	})
 
-	s.Cron(fmt.Sprintf("*/%d * * * *", tipDuration)).Do(func() {
+	s.Cron(fmt.Sprintf("*/%d * * * *", NoStudyrRemainInterva)).Do(func() {
 
 		beijingLocation, _ := time.LoadLocation("Asia/Shanghai")
 		h := time.Now().In(beijingLocation).Hour()
