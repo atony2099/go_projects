@@ -15,7 +15,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-var TodayPassRemainInterva = 60
+var TodayPassRemainInterva = 30
+
 var NoStudyrRemainInterva = 30
 
 func main() {

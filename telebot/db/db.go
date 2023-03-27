@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"log"
+	"math"
 	"time"
 
 	"gorm.io/driver/mysql"
@@ -162,4 +163,38 @@ func Detail(startDate, endDate time.Time, days int) (string, map[string]time.Dur
 	}
 
 	return s, durationByDate, average
+}
+
+var Tasks []struct {
+	Task       string
+	TotalHours float64
+}
+
+type TaskGroup struct {
+	Task         string
+	TotalHours   float64
+	MinStartTime time.Time
+	MaxEndTime   time.Time
+}
+
+func GetTaskGroup() ([]TaskGroup, error) {
+
+	var list []TaskGroup
+
+	result := db.Table("task_logs").
+		Select("task, SUM(duration)/3600.0 AS total_hours,MIN(start_time) AS min_start_time, MAX(end_time) AS max_end_time").
+		Group("task").
+		Find(&list)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	for _, task := range Tasks {
+		task.TotalHours = math.Round(task.TotalHours*100) / 100
+
+	}
+
+	return list, nil
+
 }

@@ -3,12 +3,14 @@ package bot
 import (
 	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/atony2099/go_project/telebot/db"
 	"github.com/atony2099/go_project/telebot/elapse"
+	"github.com/wcharczuk/go-chart/v2"
 
 	"github.com/atony2099/go_project/telebot/img"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -60,6 +62,37 @@ func HandleCommand() {
 					msg := tgbotapi.NewMessage(chatID, str)
 					photo := tgbotapi.NewPhoto(chatID, tgbotapi.FileBytes{Name: "data", Bytes: b})
 					bot.Send(msg)
+					bot.Send(photo)
+
+				}
+
+				if command == "group" {
+
+					list, err := db.GetTaskGroup()
+					if err != nil {
+						fmt.Fprintln(os.Stderr, err)
+						continue
+					}
+
+					var values []chart.Value
+					var str string
+
+					for _, v := range list {
+						task := fmt.Sprintf("%s (%.2f)", v.Task, v.TotalHours)
+						values = append(values, chart.Value{Value: v.TotalHours, Label: task})
+						s := fmt.Sprintf("task:%s	start:%s, end:%s, totalH: %.2f\n", v.Task, v.MinStartTime.Format("2006-01-02"), v.MaxEndTime.Format("2006-01-02"), v.TotalHours)
+						str += s
+					}
+
+					b, err := img.Pip(values)
+					if err != nil {
+						fmt.Fprintln(os.Stderr, err)
+						continue
+					}
+
+					msg := tgbotapi.NewMessage(chatID, str)
+					bot.Send(msg)
+					photo := tgbotapi.NewPhoto(chatID, tgbotapi.FileBytes{Name: "data", Bytes: b})
 					bot.Send(photo)
 
 				}

@@ -61,3 +61,21 @@ func Image(cha map[string]time.Duration, average float64) []byte {
 	// graph.Render(chart.PNG, f)
 	return buffer.Bytes()
 }
+
+func Pip(values []chart.Value) ([]byte, error) {
+
+	pie := chart.PieChart{
+		Width:  512,
+		Height: 512,
+		Values: values,
+	}
+
+	// f, _ := os.Create("a.png")
+	buffer := bytes.NewBuffer([]byte{})
+	err := pie.Render(chart.PNG, buffer)
+	if err != nil {
+		return nil, err
+	}
+	// graph.Render(chart.PNG, f)
+	return buffer.Bytes(), nil
+}
