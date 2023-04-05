@@ -90,7 +90,7 @@ func router() {
 	})
 	// Define a handler function for the task endpoint
 
-	router.Run(":8090")
+	router.Run(":8080")
 }
 
 func handleTask(c *gin.Context) {
