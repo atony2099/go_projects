@@ -23,6 +23,13 @@ var TodayPassRemainInterva = 30
 
 var NoStudyrRemainInterva = 30
 
+type TaskRequest struct {
+	StartTime string `json:"start_time"`
+	Duration  int    `json:"duration"`
+	Task      string `json:"task"`
+	Project   string `json:"project"`
+}
+
 func main() {
 
 	// helleo
@@ -57,6 +64,18 @@ func router() {
 
 	router.Use(cors.Default())
 
+	router.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
+
+	router.POST("/tasks", func(c *gin.Context) {
+		// Parse the task request from the request body
+		handleTask(c)
+
+	})
+
 	group := router.Group("/api")
 	group.GET("/day/:input", func(c *gin.Context) {
 		handleDetai(c)
@@ -69,8 +88,53 @@ func router() {
 	group.GET("/day/range", func(c *gin.Context) {
 		handleRange(c)
 	})
+	// Define a handler function for the task endpoint
 
-	router.Run(":8080")
+	router.Run(":8090")
+}
+
+func handleTask(c *gin.Context) {
+	var req TaskRequest
+	var err error
+
+	if err := c.BindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Parse the time strings into Time objects
+	startTime, err := time.Parse(time.RFC3339, req.StartTime)
+	fmt.Println(err, req.StartTime)
+	if err != nil {
+		// Handle error
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	endTime := startTime.Add(time.Duration(req.Duration) * time.Second)
+
+	if err != nil {
+		// Handle error
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Calculate the duration in seconds
+	duration := int(endTime.Sub(startTime).Seconds())
+
+	// Create a new task
+	err = db.CreateTask(startTime, endTime, duration, req.Project, req.Task)
+
+	if err != nil {
+		// Handle error
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Return a success response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Task created",
+	})
 }
 
 func handleRange(c *gin.Context) {

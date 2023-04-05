@@ -33,6 +33,20 @@ func Init(dsn string) {
 
 }
 
+func CreateTask(startTime time.Time, endTime time.Time, duration int, project string, task string) error {
+	// Create a new task record
+	taskR := TaskLog{
+		StartTime: startTime,
+		EndTime:   endTime,
+		Duration:  duration,
+		Task:      task,
+		Project:   project,
+	}
+
+	// Save the task to the database
+	return db.Create(&taskR).Error
+}
+
 func Pomodoro() string {
 
 	currentTime := time.Now()
