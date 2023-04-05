@@ -25,6 +25,7 @@ var NoStudyrRemainInterva = 30
 
 type TaskRequest struct {
 	StartTime string `json:"start_time"`
+	EndTime   string `json:"end_time"`
 	Duration  int    `json:"duration"`
 	Task      string `json:"task"`
 	Project   string `json:"project"`
@@ -104,23 +105,22 @@ func handleTask(c *gin.Context) {
 
 	// Parse the time strings into Time objects
 	startTime, err := time.Parse(time.RFC3339, req.StartTime)
-	fmt.Println(err, req.StartTime)
 	if err != nil {
 		// Handle error
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	endTime := startTime.Add(time.Duration(req.Duration) * time.Second)
-
+	endTime, err := time.Parse(time.RFC3339, req.EndTime)
 	if err != nil {
-		// Handle error
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Calculate the duration in seconds
-	duration := int(endTime.Sub(startTime).Seconds())
+	duration := req.Duration
+	if duration >= 1500 {
+		duration = 1500
+	}
 
 	// Create a new task
 	err = db.CreateTask(startTime, endTime, duration, req.Project, req.Task)
