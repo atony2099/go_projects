@@ -3,9 +3,9 @@ module github.com/atony2099/go_project
 go 1.20
 
 require (
+	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-co-op/gocron v1.18.1
-	github.com/go-echarts/go-echarts/v2 v2.2.5
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/spf13/viper v1.15.0
 	github.com/wcharczuk/go-chart/v2 v2.1.0
