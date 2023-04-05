@@ -3,14 +3,18 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
+	"regexp"
 	"syscall"
 	"time"
 
 	"github.com/atony2099/go_project/telebot/bot"
 	"github.com/atony2099/go_project/telebot/db"
 	"github.com/atony2099/go_project/telebot/elapse"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	"github.com/go-co-op/gocron"
 	"github.com/spf13/viper"
 )
@@ -21,11 +25,14 @@ var NoStudyrRemainInterva = 30
 
 func main() {
 
+	// helleo
 	viper.AutomaticEnv()
+
 	token := viper.GetString("TOKEN")
 	dsn := viper.GetString("DB")
 	chatid := viper.GetInt64("CHATID")
 
+	// this one
 	if token == "" || dsn == "" || chatid == 0 {
 		log.Fatalf("env error:token: %s, dsn: %s, chatid: %d ", token, dsn, chatid)
 	}
@@ -35,12 +42,99 @@ func main() {
 	go bot.HandleCommand()
 	go doCron()
 
+	go router()
+
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	fmt.Println("start success")
 	<-s
 	fmt.Println("clean")
 
+}
+
+func router() {
+	router := gin.Default()
+
+	router.Use(cors.Default())
+
+	group := router.Group("/api")
+	group.GET("/day/:input", func(c *gin.Context) {
+		handleDetai(c)
+	})
+
+	group.GET("/day/range/:input", func(c *gin.Context) {
+		handleRange(c)
+	})
+
+	group.GET("/day/range", func(c *gin.Context) {
+		handleRange(c)
+	})
+
+	router.Run(":8080")
+}
+
+func handleRange(c *gin.Context) {
+	startStr := c.Query("start")
+	endStr := c.Query("end")
+
+	start, err1 := time.Parse("2006-01-02", startStr)
+	end, err2 := time.Parse("2006-01-02", endStr)
+
+	// Check if there was an error parsing the dates
+	if err1 != nil || err2 != nil {
+		fmt.Println(start, end, "----")
+		c.JSON(http.StatusOK, gin.H{
+			"code": 1,
+			"msg":  "Invalid date format",
+		})
+		return
+	}
+
+	days := int(end.Sub(start).Hours()/24) + 1
+	_, d, _ := db.Detail(start, end, days)
+	for key, times := range d {
+		d[key] = times / time.Second
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"data": d,
+	})
+}
+
+func handleDetai(c *gin.Context) {
+
+	input := c.Param("input")
+
+	re := regexp.MustCompile(`\d+`)
+	match := re.FindString(input)
+	if match == "" {
+		c.JSON(http.StatusOK, gin.H{"code": 1, "msg": "input error"})
+	}
+
+	current := time.Now()
+	loc, _ := time.LoadLocation("Asia/Shanghai")
+	start := time.Date(current.Year(), current.Month(), current.Day(), 0, 0, 0, 0, loc).UTC()
+	end := start.Add(24 * time.Hour).Add(-1 * time.Second)
+
+	var days int
+	fmt.Sscan(match, &days)
+	if days <= 0 {
+		days = 1
+	}
+	start = start.Add(-time.Duration(days-1) * 24 * time.Hour)
+
+	fmt.Println("start", start, "end", end, "days", days, "input", input)
+	_, d, _ := db.Detail(start, end, days)
+
+	for key, times := range d {
+		d[key] = times / time.Second
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"data": d,
+	})
 }
 
 func doCron() {

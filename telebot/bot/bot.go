@@ -53,8 +53,7 @@ func HandleCommand() {
 				}
 
 				if command == "d" {
-					start, end, days := handleDetai(update.Message.Text)
-					fmt.Println(start, end, days, "range")
+					start, end, days := HandleDetai(update.Message.Text)
 					str, d, a := db.Detail(start, end, days)
 
 					b := img.Image(d, a)
@@ -105,9 +104,11 @@ func HandleCommand() {
 
 }
 
-func handleDetai(input string) (time.Time, time.Time, int) {
+func HandleDetai(input string) (time.Time, time.Time, int) {
 
 	strList := strings.Fields(input)
+
+	fmt.Println(strList, "xx")
 
 	var text string
 	if len(strList) == 1 {
