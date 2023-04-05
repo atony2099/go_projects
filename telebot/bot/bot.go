@@ -53,8 +53,8 @@ func HandleCommand() {
 				}
 
 				if command == "d" {
-					start, end, days := HandleDetai(update.Message.Text)
-					str, d, a := db.Detail(start, end, days)
+					start, end, _ := HandleDetai(update.Message.Text)
+					str, d, a := db.Detail(start, end)
 
 					b := img.Image(d, a)
 

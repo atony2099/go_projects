@@ -6,6 +6,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -30,7 +31,36 @@ func Init(dsn string) {
 	if err != nil {
 		log.Fatalf("dns is %s db err: %v", dsn, err)
 	}
+}
 
+func GetTaskLog(begin, end time.Time) (map[string][]gin.H, error) {
+
+	location, err := time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		return nil, err
+	}
+	var logs []TaskLog
+	db.Where("start_time >= ? AND start_time < ?", begin.In(location), end.In(location).Add(24*time.Hour)).Order("start_time").Find(&logs)
+
+	result := make(map[string][]gin.H)
+	for _, log := range logs {
+		date := log.StartTime.In(location).Format("2006-01-02")
+		start := log.StartTime.In(location).Format("15:04:05")
+
+		entry := gin.H{
+			"start":    start,
+			"duration": log.Duration,
+			"task":     log.Task,
+			"project":  log.Project,
+		}
+
+		if _, ok := result[date]; !ok {
+			result[date] = []gin.H{}
+		}
+
+		result[date] = append(result[date], entry)
+	}
+	return result, nil
 }
 
 func CreateTask(startTime time.Time, endTime time.Time, duration int, project string, task string) error {
@@ -119,11 +149,23 @@ func TodayLast(minDelta int) string {
 	return s
 }
 
-func Detail(startDate, endDate time.Time, days int) (string, map[string]time.Duration, float64) {
+func Detail(startDate, endDate time.Time) (string, map[string]time.Duration, float64) {
 
 	loc, _ := time.LoadLocation("Asia/Shanghai")
 
 	var taskLogs []TaskLog
+
+	// Get the first record in the database
+	var firstRecord TaskLog
+	db.Order("start_time ASC").First(&firstRecord)
+
+	// Check if startDate is before the first record's date, and adjust it
+	if startDate.Before(firstRecord.StartTime) {
+		startDate = firstRecord.StartTime
+	}
+
+	days := int(math.Ceil(endDate.Sub(startDate).Hours() / 24.0))
+
 	db.Where("start_time >= ? AND start_time <= ?", startDate, endDate).Order("start_time ASC").Find(&taskLogs)
 
 	durationByDate := make(map[string]time.Duration)

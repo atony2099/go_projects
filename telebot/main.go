@@ -89,7 +89,6 @@ func router() {
 	group.GET("/day/range", func(c *gin.Context) {
 		handleRange(c)
 	})
-	// Define a handler function for the task endpoint
 
 	router.Run(":8080")
 }
@@ -154,15 +153,23 @@ func handleRange(c *gin.Context) {
 		return
 	}
 
-	days := int(end.Sub(start).Hours()/24) + 1
-	_, d, _ := db.Detail(start, end, days)
+	_, d, _ := db.Detail(start, end)
 	for key, times := range d {
 		d[key] = times / time.Second
 	}
 
+	m, err := db.GetTaskLog(start, end)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
-		"data": d,
+		"data": gin.H{
+			"total": d,
+			"logs":  m,
+		},
 	})
 }
 
@@ -188,17 +195,26 @@ func handleDetai(c *gin.Context) {
 	}
 	start = start.Add(-time.Duration(days-1) * 24 * time.Hour)
 
-	fmt.Println("start", start, "end", end, "days", days, "input", input)
-	_, d, _ := db.Detail(start, end, days)
+	_, d, _ := db.Detail(start, end)
 
 	for key, times := range d {
 		d[key] = times / time.Second
 	}
 
+	m, err := db.GetTaskLog(start, end)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
-		"data": d,
+		"data": gin.H{
+			"total": d,
+			"logs":  m,
+		},
 	})
+
 }
 
 func doCron() {
