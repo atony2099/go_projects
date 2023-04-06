@@ -1,5 +1,4 @@
-
-# 1. key 
+# 1. key
 # 2. build
 
 name: deploy
@@ -16,31 +15,27 @@ jobs:
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: unnecessary
-      
+
       - name: Adding Known Hosts
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }}  >> ~/.ssh/known_hosts
 
       - name: Checkout
         uses: actions/checkout@v3
 
-    
       - name: hello
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo hello"
-  
+
       - name: set up go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20.1'
+          go-version: "1.20.1"
 
-      - name: Install dependencies 
-        run: go mod download 
+      - name: Install dependencies
+        run: go mod download
 
       - name: Build app
-        run: go build -o telbot ./telebot 
-
-
-   
+        run: go build -o telbot .
 
       # - name: Deploy with rsync
       #   run:   rsync -avz ./dist/* ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/api
@@ -55,37 +50,30 @@ jobs:
             exit 0
           fi
 
-
       - name: scp
         run: |
           scp  ./telbot ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/api/
 
-
       - name: Set env vars and start app
         uses: appleboy/ssh-action@v0.1.8
         env:
-            TOKEN: ${{ secrets.TOKEN }}
-            CHATID: ${{ secrets.CHATID }}
-            DB: ${{ secrets.DB }}
+          TOKEN: ${{ secrets.TOKEN }}
+          CHATID: ${{ secrets.CHATID }}
+          DB: ${{ secrets.DB }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          
+
           envs: TOKEN,CHATID,DB
-          # export TOKEN=$TOKEN 
-          # export CHATID=$CHATID 
-          # export DB=$DB 
-          # cd /var/www/api 
+          # export TOKEN=$TOKEN
+          # export CHATID=$CHATID
+          # export DB=$DB
+          # cd /var/www/api
           # nohup ./telbot >> ./telbot.log 2>&1
           script: |
-              echo "hi world  123"
-              export TOKEN=$TOKEN 
-              export CHATID=$CHATID 
-              export DB=$DB 
-              cd /var/www/api
-              nohup ./telbot >>./tel.log 2>>./telbot.error.log  < /dev/null &
-             
-             
-        
-     
+            export TOKEN=$TOKEN 
+            export CHATID=$CHATID 
+            export DB=$DB 
+            cd /var/www/api
+            nohup ./telbot >>./tel.log 2>>./telbot.error.log  < /dev/null &
