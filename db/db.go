@@ -24,13 +24,27 @@ var db *gorm.DB
 
 var max = 1500
 
-func Init(dsn string) {
-
+func Open(dsn string) {
 	var err error
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("dns is %s db err: %v", dsn, err)
 	}
+}
+
+func Close() {
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalf("Error getting SQL DB from GORM: %v", err)
+		return
+	}
+
+	if err := sqlDB.Close(); err != nil {
+		log.Fatalf("Error closing SQL DB: %v", err)
+		return
+	}
+
+	log.Println("Database connection closed")
 }
 
 func GetTaskLog(begin, end time.Time) (map[string][]gin.H, error) {

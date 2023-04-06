@@ -1,4 +1,4 @@
-module github.com/atony2099/go_project
+module github.com/atony2099/time_manager
 
 go 1.20
 

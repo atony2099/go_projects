@@ -16,13 +16,11 @@ func Combine() string {
 }
 
 func LoadTime() string {
-
 	pass, total := getPercent()
 	bar := bar(pass, total, 93)
 	reaminStr := fmt.Sprintf("🚗今天还有%dm, %.2f小时可以挥霍", total-pass, float64(total-pass)/60)
 	timeDesc := bar + "\n" + reaminStr
 	return timeDesc
-
 }
 
 func LoadM() string {
