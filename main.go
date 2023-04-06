@@ -29,7 +29,7 @@ func main() {
 	server := startSever(cfg.Port)
 
 	waitForSignal()
-	cancel()
+	cancel() //stop bot,scheduler
 	db.Close()
 	closeServer(server)
 

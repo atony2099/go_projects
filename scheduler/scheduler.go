@@ -12,8 +12,8 @@ import (
 	"github.com/go-co-op/gocron"
 )
 
-var TodayPassRemainInterva = 30
-var NoStudyrRemainInterva = 30
+var TodayPassRemainInterva = 120
+var NoStudyrRemainInterva = 120
 
 func StartScheduler(ctx context.Context) {
 	bj, err := time.LoadLocation("Asia/Shanghai")
