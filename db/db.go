@@ -163,8 +163,7 @@ func TodayLast(minDelta int) string {
 	return s
 }
 
-func Detail(startDate, endDate time.Time) (string, map[string]time.Duration, float64) {
-
+func DurationsByDate(startDate, endDate time.Time) map[string]time.Duration {
 	loc, _ := time.LoadLocation("Asia/Shanghai")
 
 	var taskLogs []TaskLog
@@ -178,61 +177,24 @@ func Detail(startDate, endDate time.Time) (string, map[string]time.Duration, flo
 		startDate = firstRecord.StartTime
 	}
 
-	days := int(math.Ceil(endDate.Sub(startDate).Hours() / 24.0))
-
 	db.Where("start_time >= ? AND start_time <= ?", startDate, endDate).Order("start_time ASC").Find(&taskLogs)
 
 	durationByDate := make(map[string]time.Duration)
-	var total time.Duration
+
+	// Initialize the duration of all dates between startDate and endDate to zero
+	for d := startDate; !d.After(endDate); d = d.AddDate(0, 0, 1) {
+		dateString := d.In(loc).Format("2006-01-02")
+		durationByDate[dateString] = 0
+	}
+
+	// Update the duration of each date based on the taskLogs
 	for _, record := range taskLogs {
 		dateString := record.StartTime.In(loc).Format("2006-01-02")
 		delta := record.EndTime.Sub(record.StartTime)
 		durationByDate[dateString] += delta
-		total += delta
-	}
-	fmt.Println(total, durationByDate, "total")
-
-	hours := total.Hours()
-	minutes := total.Minutes()
-	average := total.Hours() / float64(days)
-
-	var s string
-	summary := fmt.Sprintf("summary:  total day: %d, total hour: %.0fh, total min: %.fmin, average: %.2fh\n\n", days, hours, minutes, average)
-	s += summary
-	for i := 0; i < days; i++ {
-		beijingDate := endDate.In(loc).AddDate(0, 0, -i)
-		dateString := beijingDate.In(loc).Format("2006-01-02")
-		dateWeekday := beijingDate.Weekday().String()
-		totalDuration := durationByDate[dateString]
-		totalMinutes := totalDuration.Minutes()
-		totalHours := totalMinutes / 60
-		s += fmt.Sprintf("\n%s, %s, ", dateString, dateWeekday)
-
-		empty := "🈳🈳🈳\n"
-		if totalMinutes == 0 {
-			durationByDate[dateString] = 0
-			s += empty
-		} else {
-			s += fmt.Sprintf("%.fmin; %.2fh\n", totalMinutes, totalHours)
-			for _, record := range taskLogs {
-				if record.StartTime.In(loc).Format("2006-01-02") == dateString {
-					start := record.StartTime.In(loc).Format(time.Kitchen)
-					end := record.EndTime.In(loc).Format(time.Kitchen)
-					pomo := ""
-					if record.Duration >= max {
-						pomo = " 🍅"
-					}
-
-					min := float64(record.Duration) / 60
-					s += fmt.Sprintf("%s -- %s, duration: %.fm  %s\n", start, end, min, pomo)
-				}
-			}
-
-		}
-
 	}
 
-	return s, durationByDate, average
+	return durationByDate
 }
 
 var Tasks []struct {

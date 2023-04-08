@@ -73,10 +73,10 @@ func handlePassCommand() {
 
 func handleDCommand(text string) {
 	start, end, _ := parseDetailInput(text)
-	str, d, a := db.Detail(start, end)
+	d := db.DurationsByDate(start, end)
 
+	str, a := detailWithDurationByDate(d)
 	b := img.Image(d, a)
-
 	msg := tgbotapi.NewMessage(chatID, str)
 	photo := tgbotapi.NewPhoto(chatID, tgbotapi.FileBytes{Name: "data", Bytes: b})
 	bot.Send(msg)
@@ -169,4 +169,49 @@ func parseDetailInput(input string) (time.Time, time.Time, int) {
 
 	}
 	return start, end, days
+}
+
+func detailWithDurationByDate(durationByDate map[string]time.Duration) (string, float64) {
+
+	var startDate, endDate time.Time
+	var days int
+	for dateString := range durationByDate {
+		date, _ := time.Parse("2006-01-02", dateString)
+		if startDate.IsZero() || date.Before(startDate) {
+			startDate = date
+		}
+		if endDate.IsZero() || date.After(endDate) {
+			endDate = date
+		}
+		days++
+	}
+
+	var total time.Duration
+	for _, duration := range durationByDate {
+		total += duration
+	}
+
+	average := total.Hours() / float64(days)
+
+	var s string
+	summary := fmt.Sprintf("summary:  total day: %d, total hour: %.0fh, total min: %.fmin, average: %.2fh\n\n", days, total.Hours(), total.Minutes(), average)
+	s += summary
+	for i := 0; i < days; i++ {
+		date := endDate.AddDate(0, 0, -i)
+		dateStr := date.Format("2006-01-02")
+		dateWeekday := date.Weekday().String()
+		totalDuration := durationByDate[dateStr]
+		totalMinutes := totalDuration.Minutes()
+		totalHours := totalMinutes / 60
+		s += fmt.Sprintf("\n%s, %s, ", dateStr, dateWeekday)
+
+		empty := "🈳🈳🈳\n"
+		if totalMinutes == 0 {
+			s += empty
+		} else {
+			s += fmt.Sprintf("%.fmin; %.2fh\n", totalMinutes, totalHours)
+		}
+	}
+
+	return s, average
 }

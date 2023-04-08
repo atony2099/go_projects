@@ -104,7 +104,7 @@ func TasklogsDay(c *gin.Context) {
 
 func queryLogs(start, end time.Time, c *gin.Context) {
 
-	_, d, _ := db.Detail(start, end)
+	d := db.DurationsByDate(start, end)
 
 	for key, times := range d {
 		d[key] = times / time.Second
