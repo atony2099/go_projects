@@ -94,10 +94,11 @@ func TasklogsDay(c *gin.Context) {
 	}
 
 	loc, _ := time.LoadLocation("Asia/Shanghai")
-	current := time.Now()
-	initTime := time.Date(current.Year(), current.Month(), current.Day(), 0, 0, 0, 0, loc).UTC()
-	end := initTime.Add(24 * time.Hour).Add(-time.Second)
-	start := initTime.AddDate(0, 0, -days+1)
+	current := time.Now().In(loc)
+	beijingToday := time.Date(current.Year(), current.Month(), current.Day(), 0, 0, 0, 0, loc)
+	utcToday := beijingToday.UTC()
+	end := utcToday.Add(24 * time.Hour).Add(-time.Second)
+	start := utcToday.AddDate(0, 0, -days+1)
 	queryLogs(start, end, c)
 
 }
