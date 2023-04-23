@@ -20,6 +20,11 @@ type TaskLog struct {
 	Project   string
 }
 
+type DailyLog struct {
+	EndTime string `json:"end_time"`
+	Total   int    `json:"total"`
+}
+
 var db *gorm.DB
 
 var max = 1500
@@ -75,6 +80,14 @@ func GetTaskLog(begin, end time.Time) (map[string][]gin.H, error) {
 		result[date] = append(result[date], entry)
 	}
 	return result, nil
+}
+
+func GetDailyLog(begin, end time.Time) ([]TaskLog, error) {
+
+	var logs []TaskLog
+	err := db.Where("start_time >= ? AND start_time < ?", begin, end).Order("start_time").Find(&logs).Error
+
+	return logs, err
 }
 
 func CreateTask(startTime time.Time, endTime time.Time, duration int, project string, task string) error {

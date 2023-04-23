@@ -24,6 +24,8 @@ func SetupRouter() http.Handler {
 	api.GET("/day/:input", controller.TasklogsDay)
 	api.GET("/day/range", controller.TasklogsRange)
 
+	api.GET("/cumulative/:input", controller.GetDayTotal)
+
 	return r
 
 }

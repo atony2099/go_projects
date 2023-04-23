@@ -120,3 +120,54 @@ func queryLogs(start, end time.Time, c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": gin.H{"total": d, "logs": m}})
 }
+
+type DailyLog struct {
+	EndTime string `json:"end_time"`
+	Total   int    `json:"total"`
+}
+
+func GetDayTotal(c *gin.Context) {
+	loc, _ := time.LoadLocation("Asia/Shanghai")
+	current := time.Now().In(loc)
+	beijingToday := time.Date(current.Year(), current.Month(), current.Day(), 0, 0, 0, 0, loc)
+	utcToday := beijingToday.UTC()
+	end := utcToday.Add(24 * time.Hour).Add(-time.Second)
+
+	days := 1
+	if input := c.Param("input"); input != "" {
+		if _, err := fmt.Sscan(input, &days); err != nil || days <= 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "input error"})
+			return
+		}
+	}
+	start := utcToday.AddDate(0, 0, -days+1)
+
+	logs, err := db.GetDailyLog(start, end)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// initialize dlogs with an item for every hour from start to end
+	var dlogs []DailyLog
+
+	now := time.Now()
+	for t := start; t.Before(now); t = t.Add(time.Hour) {
+		dlogs = append(dlogs, DailyLog{EndTime: t.In(loc).Format(time.DateTime), Total: 0})
+	}
+
+	dlogs = append(dlogs, DailyLog{EndTime: now.In(loc).Format(time.DateTime), Total: 0})
+
+	for _, log := range logs {
+		// find the corresponding item in dlogs for this log
+		for i := range dlogs {
+			itemT, _ := time.ParseInLocation(time.DateTime, dlogs[i].EndTime, loc)
+			// if the log ends before this hour, add the duration to the total for this hour
+			if log.EndTime.Before(itemT) {
+				dlogs[i].Total += log.Duration
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": dlogs})
+}
