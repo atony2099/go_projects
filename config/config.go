@@ -16,14 +16,17 @@ type Config struct {
 func LoadEnv() {
 
 	viper.AutomaticEnv()
-	viper.SetDefault("Port", "8080")
+
 }
 
 func GetConfig() *Config {
 	token := viper.GetString("TOKEN")
 	dsn := viper.GetString("DB")
 	chatid := viper.GetInt64("CHATID")
-	port := viper.GetString("Port")
+	port := viper.GetString("PORT")
+	if port == "" {
+		port = "8080"
+	}
 
 	if token == "" || dsn == "" || chatid == 0 {
 		log.Fatalf("env error:token: %s, dsn: %s, chatid: %d ", token, dsn, chatid)
