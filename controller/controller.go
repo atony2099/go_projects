@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/atony2099/time_manager/db"
@@ -27,6 +28,11 @@ func NewTask(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Convert the request parameters to lower case
+	req.Project = strings.ToLower(req.Project)
+	req.Task = strings.ToLower(req.Task)
+	req.Parent = strings.ToLower(req.Parent)
 
 	// Parse the time strings into Time objects
 	startTime, endTime, err := parseTime(req.StartTime, req.EndTime)
