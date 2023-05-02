@@ -123,7 +123,6 @@ func CreateTaskLog(startTime time.Time, endTime time.Time, duration int, project
 		EndTime:   endTime,
 		Duration:  duration,
 		TaskID:    task.ID,
-		Project:   project,
 	}
 
 	// Save the task log to the database

@@ -29,3 +29,4 @@ UPDATE task_logs, tasks SET task_logs.task_id = tasks.id WHERE task_logs.task = 
 
 
 ALTER TABLE task_logs DROP COLUMN `task` ;
+ALTER TABLE task_logs DROP COLUMN `project`;
