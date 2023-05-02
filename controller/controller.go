@@ -16,6 +16,7 @@ type TaskRequest struct {
 	Duration  int    `json:"duration"`
 	Task      string `json:"task"`
 	Project   string `json:"project"`
+	Parent    string `json:"parent"`
 }
 
 func NewTask(c *gin.Context) {
@@ -28,29 +29,18 @@ func NewTask(c *gin.Context) {
 	}
 
 	// Parse the time strings into Time objects
-	startTime, err := time.Parse(time.RFC3339, req.StartTime)
-	if err != nil {
-		// Handle error
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	endTime, err := time.Parse(time.RFC3339, req.EndTime)
+	startTime, endTime, err := parseTime(req.StartTime, req.EndTime)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	duration := req.Duration
-	if duration >= 1500 {
-		duration = 1500
-	}
+	duration := min(req.Duration, 1500)
 
 	// Create a new task
-	err = db.CreateTask(startTime, endTime, duration, req.Project, req.Task)
+	err = db.CreateTaskLog(startTime, endTime, duration, req.Project, req.Task, req.Parent)
 
 	if err != nil {
-		// Handle error
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -59,6 +49,26 @@ func NewTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Task created",
 	})
+}
+
+func parseTime(start, end string) (time.Time, time.Time, error) {
+	startTime, err := time.Parse(time.RFC3339, start)
+	if err != nil {
+		return startTime, time.Time{}, err
+	}
+
+	endTime, err := time.Parse(time.RFC3339, end)
+	if err != nil {
+		return startTime, endTime, err
+	}
+
+	return startTime, endTime, nil
+}
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func TasklogsRange(c *gin.Context) {
@@ -72,7 +82,7 @@ func TasklogsRange(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"code": 1, "msg": "Invalid date format"})
 		return
 	}
-	queryLogs(start, end, c)
+	getDayLogsAndDuration(start, end, c)
 
 }
 
@@ -99,26 +109,23 @@ func TasklogsDay(c *gin.Context) {
 	utcToday := beijingToday.UTC()
 	end := utcToday.Add(24 * time.Hour).Add(-time.Second)
 	start := utcToday.AddDate(0, 0, -days+1)
-	queryLogs(start, end, c)
+	getDayLogsAndDuration(start, end, c)
 
 }
 
-func queryLogs(start, end time.Time, c *gin.Context) {
-
-	d := db.DurationsByDate(start, end)
-
-	for key, times := range d {
-		d[key] = times / time.Second
+func getDayLogsAndDuration(start, end time.Time, c *gin.Context) {
+	dayDuration, err := db.DurationsByDate(start, end)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
 	}
-
-	m, err := db.GetTaskLog(start, end)
-
+	dayLogs, err := db.GetTaskLog(start, end)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": 0, "data": gin.H{"total": d, "logs": m}})
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": gin.H{"total": dayDuration, "logs": dayLogs}})
 }
 
 type DailyLog struct {

@@ -59,7 +59,7 @@ func handleUpdate(update tgbotapi.Update) {
 		case "pass":
 			handlePassCommand()
 		case "d":
-			handleDCommand(update.Message.Text)
+			// handleDCommand(update.Message.Text)
 		case "group":
 			handleGroupCommand()
 		}
@@ -71,17 +71,17 @@ func handlePassCommand() {
 	bot.Send(msg)
 }
 
-func handleDCommand(text string) {
-	start, end, _ := parseDetailInput(text)
-	d := db.DurationsByDate(start, end)
+// func handleDCommand(text string) {
+// 	start, end, _ := parseDetailInput(text)
+// 	d, _ := db.DurationsByDate(start, end)
 
-	str, a := detailWithDurationByDate(d)
-	b := img.Image(d, a)
-	msg := tgbotapi.NewMessage(chatID, str)
-	photo := tgbotapi.NewPhoto(chatID, tgbotapi.FileBytes{Name: "data", Bytes: b})
-	bot.Send(msg)
-	bot.Send(photo)
-}
+// 	str, a := detailWithDurationByDate(d)
+// 	b := img.Image(d, a)
+// 	msg := tgbotapi.NewMessage(chatID, str)
+// 	photo := tgbotapi.NewPhoto(chatID, tgbotapi.FileBytes{Name: "data", Bytes: b})
+// 	bot.Send(msg)
+// 	bot.Send(photo)
+// }
 
 func handleGroupCommand() {
 	list, err := db.GetTaskGroup()

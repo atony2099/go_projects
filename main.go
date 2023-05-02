@@ -9,7 +9,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/atony2099/time_manager/bot"
 	"github.com/atony2099/time_manager/config"
 	"github.com/atony2099/time_manager/db"
 	"github.com/atony2099/time_manager/router"
@@ -24,7 +23,7 @@ func main() {
 	defer cancel()
 
 	db.Open(cfg.DatabaseDSN)
-	go bot.RunBot(cfg.TelegramToken, cfg.ChatID, ctx)
+	// go bot.RunBot(cfg.TelegramToken, cfg.ChatID, ctx)
 	go scheduler.StartScheduler(ctx)
 	server := startSever(cfg.Port)
 

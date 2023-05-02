@@ -18,12 +18,10 @@ func SetupRouter() http.Handler {
 		})
 	})
 
-	r.POST("/tasks", controller.NewTask)
-
 	api := r.Group("/api")
+	api.POST("/tasks", controller.NewTask)
 	api.GET("/day/:input", controller.TasklogsDay)
 	api.GET("/day/range", controller.TasklogsRange)
-
 	api.GET("/cumulative/:input", controller.GetDayTotal)
 
 	return r
