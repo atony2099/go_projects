@@ -12,7 +12,6 @@ import (
 	"github.com/atony2099/time_manager/config"
 	"github.com/atony2099/time_manager/db"
 	"github.com/atony2099/time_manager/router"
-	"github.com/atony2099/time_manager/scheduler"
 )
 
 func main() {
@@ -24,13 +23,14 @@ func main() {
 
 	db.Open(cfg.DatabaseDSN)
 	// go bot.RunBot(cfg.TelegramToken, cfg.ChatID, ctx)
-	go scheduler.StartScheduler(ctx)
+	// go scheduler.StartScheduler(ctx)
+
 	server := startSever(cfg.Port)
 
 	waitForSignal()
 	cancel() //stop bot,scheduler
 	db.Close()
-	closeServer(server)
+	closeServer(server, ctx)
 
 	log.Print("Server exiting gracefully")
 
@@ -42,8 +42,8 @@ func waitForSignal() {
 	<-stop
 }
 
-func closeServer(srv *http.Server) {
-	ctx, cancel := context.WithTimeout(context.Background(), 3)
+func closeServer(srv *http.Server, ctx context.Context) {
+	ctx, cancel := context.WithTimeout(ctx, 3)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown Failded:", err)
