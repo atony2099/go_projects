@@ -16,6 +16,7 @@ import (
 
 func main() {
 
+	// test
 	config.LoadEnv()
 	cfg := config.GetConfig()
 	ctx, cancel := context.WithCancel(context.Background())
