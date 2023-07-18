@@ -22,9 +22,9 @@ type TaskLog struct {
 
 type Task struct {
 	gorm.Model
-	TaskName    string
+	Sub         string
 	ProjectName string
-	ParentName  string
+	Task        string
 }
 
 type DailyLog struct {
@@ -87,7 +87,7 @@ func GetTaskLog(begin, end time.Time) (map[string][]gin.H, error) {
 		entry := gin.H{
 			"start":    start,
 			"duration": log.Duration,
-			"task":     fmt.Sprintf("%s-%s", log.ParentName, log.TaskName),
+			"task":     fmt.Sprintf("%s-%s", log.Task, log.Sub),
 			"project":  log.ProjectName,
 		}
 
@@ -110,7 +110,7 @@ func GetDailyLog(begin, end time.Time) ([]TaskLog, error) {
 
 func CreateTaskLog(startTime time.Time, endTime time.Time, duration int, project string, taskName string, parentName string) error {
 	// Try to retrieve the task from the database or create a new one if it doesn't exist
-	var task = Task{ProjectName: project, TaskName: taskName, ParentName: parentName}
+	var task = Task{ProjectName: project, Sub: taskName, Task: parentName}
 	fmt.Println("project", project, "taskName", taskName, "parentName", parentName)
 	err := db.Where(&task).FirstOrCreate(&task).Error
 	if err != nil {
