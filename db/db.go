@@ -87,7 +87,7 @@ func GetTaskLog(begin, end time.Time) (map[string][]gin.H, error) {
 		entry := gin.H{
 			"start":    start,
 			"duration": log.Duration,
-			"task":     fmt.Sprintf("%s-%s", log.Task, log.Sub),
+			"task":     fmt.Sprintf("%s-%s", log.Task.Task, log.Sub),
 			"project":  log.ProjectName,
 		}
 
