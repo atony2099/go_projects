@@ -17,7 +17,7 @@ type TaskRequest struct {
 	Duration  int    `json:"duration"`
 	Task      string `json:"task"`
 	Project   string `json:"project"`
-	Parent    string `json:"parent"`
+	// Parent    string `json:"parent"`
 }
 
 func NewTask(c *gin.Context) {
@@ -31,8 +31,19 @@ func NewTask(c *gin.Context) {
 
 	// Convert the request parameters to lower case
 	req.Project = strings.ToLower(req.Project)
-	req.Task = strings.ToLower(req.Task)
-	req.Parent = strings.ToLower(req.Parent)
+	originTask := strings.ToLower(req.Task)
+
+	var task, parent string
+	tasks := strings.Split(originTask, "-")
+	if len(tasks) == 1 {
+		task = tasks[0]
+
+	}
+
+	if len(tasks) == 2 {
+		task = tasks[1]
+		parent = tasks[0]
+	}
 
 	// Parse the time strings into Time objects
 	startTime, endTime, err := parseTime(req.StartTime, req.EndTime)
@@ -44,7 +55,7 @@ func NewTask(c *gin.Context) {
 	duration := min(req.Duration, 1500)
 
 	// Create a new task
-	err = db.CreateTaskLog(startTime, endTime, duration, req.Project, req.Task, req.Parent)
+	err = db.CreateTaskLog(startTime, endTime, duration, req.Project, task, parent)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
