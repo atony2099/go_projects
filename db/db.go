@@ -22,10 +22,10 @@ type TaskLog struct {
 
 type DailyTracker struct {
 	ID        uint `gorm:"primaryKey"` // Assuming there's a primary key named "id"
-	Date      time.Time
+	Date      string
 	Tags      string
-	StartTime time.Time
-	EndTime   time.Time
+	StartTime string
+	EndTime   string
 }
 
 type Task struct {

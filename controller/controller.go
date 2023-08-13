@@ -63,10 +63,10 @@ func NewTask(c *gin.Context) {
 
 	// create
 	err = db.CreateTracker(db.DailyTracker{
-		Date:      startTime,
+		Date:      startTime.Format("2006-01-02"),
 		Tags:      "study",
-		StartTime: startTime,
-		EndTime:   endTime,
+		StartTime: startTime.Format("15:04:05"),
+		EndTime:   endTime.Format("15:04:05"),
 	})
 
 	if err != nil {
