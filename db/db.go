@@ -17,7 +17,15 @@ type TaskLog struct {
 	EndTime   time.Time
 	Duration  int
 	TaskID    uint
-	Project   string
+	// Project   string
+}
+
+type DailyTracker struct {
+	ID        uint `gorm:"primaryKey"` // Assuming there's a primary key named "id"
+	Date      time.Time
+	Tags      string
+	StartTime time.Time
+	EndTime   time.Time
 }
 
 type Task struct {
@@ -127,6 +135,25 @@ func CreateTaskLog(startTime time.Time, endTime time.Time, duration int, project
 
 	// Save the task log to the database
 	return db.Create(&taskLog).Error
+}
+
+func CreateTracker(activity DailyTracker) error {
+	tracker := DailyTracker{
+		Date:      activity.Date,
+		Tags:      activity.Tags,
+		StartTime: activity.StartTime,
+		EndTime:   activity.EndTime,
+	}
+
+	// Use GORM's Create method to insert the record
+	result := db.Create(&tracker)
+
+	// Check for errors
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }
 
 func Pomodoro() string {

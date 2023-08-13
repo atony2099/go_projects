@@ -28,7 +28,6 @@ func NewTask(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	// Convert the request parameters to lower case
 	req.Project = strings.ToLower(req.Project)
 	originTask := strings.ToLower(req.Task)
@@ -56,6 +55,19 @@ func NewTask(c *gin.Context) {
 
 	// Create a new task
 	err = db.CreateTaskLog(startTime, endTime, duration, req.Project, task, parent)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// create
+	err = db.CreateTracker(db.DailyTracker{
+		Date:      startTime,
+		Tags:      "study",
+		StartTime: startTime,
+		EndTime:   endTime,
+	})
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
