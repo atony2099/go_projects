@@ -52,7 +52,9 @@ func NewTask(c *gin.Context) {
 		return
 	}
 
-	subtime := endTime.Sub(startTime) * time.Second
+	subtime := endTime.Sub(startTime) / time.Second
+
+	fmt.Println("sub", int(subtime))
 
 	duration := min(int(subtime), 1500)
 	// Create a new task
