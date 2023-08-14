@@ -14,9 +14,9 @@ import (
 type TaskRequest struct {
 	StartTime string `json:"start_time"`
 	EndTime   string `json:"end_time"`
-	Duration  int    `json:"duration"`
-	Task      string `json:"task"`
-	Project   string `json:"project"`
+	// Duration  int    `json:"duration"`
+	Task    string `json:"task"`
+	Project string `json:"project"`
 	// Parent    string `json:"parent"`
 }
 
@@ -46,13 +46,15 @@ func NewTask(c *gin.Context) {
 
 	// Parse the time strings into Time objects
 	startTime, endTime, err := parseTime(req.StartTime, req.EndTime)
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	duration := min(req.Duration, 1500)
+	subtime := endTime.Sub(startTime) * time.Second
 
+	duration := min(int(subtime), 1500)
 	// Create a new task
 	err = db.CreateTaskLog(startTime, endTime, duration, req.Project, task, parent)
 
